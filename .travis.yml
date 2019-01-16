@@ -1,0 +1,9 @@
+language: objective-c
+osx_image: xcode10.1
+xcode_project: AGCountryCode.xcodeproj
+xcode_scheme: AGCountryCodeTests
+branches:
+  only:
+  - master
+script:
+  xcodebuild -project AGCountryCode.xcodeproj -scheme AGCountryCodeTests CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO build
