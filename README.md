@@ -5,8 +5,6 @@
 [![License](https://img.shields.io/cocoapods/l/AGCountryCode.svg?style=flat)](https://cocoapods.org/pods/AGCountryCode)
 [![Platform](https://img.shields.io/cocoapods/p/AGCountryCode.svg?style=flat)](https://cocoapods.org/pods/AGCountryCode)
 
-## Requirements
-
 ## Installation
 
 AGCustomControls is available through [CocoaPods](https://cocoapods.org). To install
@@ -19,6 +17,25 @@ pod 'AGCountryCode'
 ## Description
 
 A custom UIPickerView to provide to the user a list of countries.
+
+## To use
+
+To create a view to show the country picker
+
+```ruby
+    let countryView = AGCountryCodeView(frame: self.view.bounds)
+```
+The CountryPickerViewDelegate notificates when user selects a country
+
+```ruby
+protocol CountryPickerViewDelegate {
+    func countryPickerSelectedCountry(view: AGCountryCodeView,
+                                      countryName:String?,
+                                      countryCode:String?,
+                                      countryDialCode:String?,
+                                      flag:UIImage?)
+}
+```
 
 ## Author
 

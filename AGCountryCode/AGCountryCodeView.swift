@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class Country:Decodable {
+class Country:Decodable {
     
     var name:String?
     var dial_code:String?
@@ -22,10 +22,14 @@ public class Country:Decodable {
 }
 
 protocol CountryPickerViewDelegate {
-    func countryPickerSelectCountry(view: AGCountryCodeView, country:Country)
+    func countryPickerSelectedCountry(view: AGCountryCodeView,
+                                      countryName:String?,
+                                      countryCode:String?,
+                                      countryDialCode:String?,
+                                      flag:UIImage?)
 }
 
-class AGCountryCodeView: UIView {
+public class AGCountryCodeView: UIView {
     
     //MARK: - Constants
 
@@ -52,12 +56,12 @@ class AGCountryCodeView: UIView {
     
     //MARK: - Inits
     
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         setupCountryCodeView()
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupCountryCodeView()
     }
@@ -121,7 +125,7 @@ class AGCountryCodeView: UIView {
     
     private func selectedCountry(countryCode:String?) -> [Country] {
         guard let country = countryCode else { return fullCountries }
-        countries = fullCountries.filter { $0.name!.contains(country) }
+        countries = fullCountries.filter { $0.name!.uppercased().contains(country.uppercased()) }
         return countries.count == 0 ? fullCountries : countries
     }
     
@@ -135,9 +139,13 @@ class AGCountryCodeView: UIView {
 // MARK: - UIPickerViewDelegate
 extension AGCountryCodeView: UIPickerViewDelegate {
     
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    public func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedCountry = countries[row]
-        countryPickerViewDelegate?.countryPickerSelectCountry(view: self, country: selectedCountry!)
+        countryPickerViewDelegate?.countryPickerSelectedCountry(view: self,
+                                                                countryName: selectedCountry?.name,
+                                                                countryCode: selectedCountry?.code,
+                                                                countryDialCode: selectedCountry?.dial_code,
+                                                                flag: selectedCountry?.flag)
     }
 
 }
@@ -145,15 +153,15 @@ extension AGCountryCodeView: UIPickerViewDelegate {
 // MARK: - UIPickerViewDataSource
 extension AGCountryCodeView: UIPickerViewDataSource {
     
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+    public func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
     
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return countries.count
     }
     
-    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+    public func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         if let v = view {
             return v
         }else{
@@ -163,7 +171,7 @@ extension AGCountryCodeView: UIPickerViewDataSource {
         }
     }
     
-    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+    public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
         return cellHeight
     }
 
@@ -173,7 +181,7 @@ extension AGCountryCodeView: UIPickerViewDataSource {
 // MARK: - UITextFieldDelegate
 extension AGCountryCodeView: UITextFieldDelegate {
     
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         var str:String = textField.text!
         str = string == "" ? String(str.dropLast()) : str + string
         countries = selectedCountry(countryCode: str)
@@ -181,14 +189,18 @@ extension AGCountryCodeView: UITextFieldDelegate {
         return true
     }
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         hideKeyboard()
         if countries.count == 1 {
             selectedCountry = countries[0]
         }
         if selectedCountry != nil {
-            countryPickerViewDelegate?.countryPickerSelectCountry(view: self, country: selectedCountry!)
+            countryPickerViewDelegate?.countryPickerSelectedCountry(view: self,
+                                                                    countryName: selectedCountry?.name,
+                                                                    countryCode: selectedCountry?.code,
+                                                                    countryDialCode: selectedCountry?.dial_code,
+                                                                    flag: selectedCountry?.flag)
             closeCountryPicker()
         }
         return true;
