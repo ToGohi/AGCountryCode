@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "AGCountryCode"
-  s.version      = "0.0.3"
+  s.version      = "0.0.4"
   s.summary      = "A custom UIPickerView to provide to the user a list of countries."
 
   # This description is used to generate tags and improve search results.
@@ -90,7 +90,7 @@ Pod::Spec.new do |s|
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "Classes", "AGCountryCode/**/*.{swift, xib, png, json}"
+  s.source_files  = "Classes", "AGCountryCode/**/*.{swift}"
   #s.exclude_files = "Classes/Exclude"
 
   # s.public_header_files = "Classes/**/*.h"
@@ -105,7 +105,7 @@ Pod::Spec.new do |s|
   #
 
   # s.resource  = "icon.png"
-  # s.resources = "Resources/*.png"
+  s.resources = ["AGCountryCode/flags/*.{png}", "AGCountryCode/*.{json}", "AGCountryCode/*.{xib}"]
 
   # s.preserve_paths = "FilesToSave", "MoreFilesToSave"
 
