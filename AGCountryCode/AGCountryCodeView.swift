@@ -21,7 +21,7 @@ class Country:Decodable {
     }
 }
 
-protocol CountryPickerViewDelegate {
+public protocol CountryPickerViewDelegate {
     func countryPickerSelectedCountry(view: AGCountryCodeView,
                                       countryName:String?,
                                       countryCode:String?,
@@ -51,7 +51,7 @@ public class AGCountryCodeView: UIView {
     
     //MARK: - Public variables
     
-    var countryPickerViewDelegate:CountryPickerViewDelegate?
+    public var countryPickerViewDelegate:CountryPickerViewDelegate?
     
     
     //MARK: - Inits
