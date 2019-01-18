@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Country:Decodable {
+internal class Country:Decodable {
     
     var name:String?
     var dial_code:String?
@@ -21,7 +21,16 @@ class Country:Decodable {
     }
 }
 
-public protocol CountryPickerViewDelegate {
+public protocol AGCountryCodeViewDelegate {
+    
+    /// Every time the user selects a country, the delegate will call this function.
+    ///
+    /// - Parameters:
+    ///   - view: Sender (AGCountryCodeView)
+    ///   - countryName: The name of the country selected
+    ///   - countryCode: The code of the country selected
+    ///   - countryDialCode: The dial code of the country selected
+    ///   - flag: The flag of the country selected
     func countryPickerSelectedCountry(view: AGCountryCodeView,
                                       countryName:String?,
                                       countryCode:String?,
@@ -51,10 +60,15 @@ public class AGCountryCodeView: UIView {
     
     //MARK: - Public variables
     
-    public var countryPickerViewDelegate:CountryPickerViewDelegate?
+    public var delegate:AGCountryCodeViewDelegate?
     
     
     //MARK: - Inits
+    
+    public init(){
+        super.init(frame: UIScreen.main.bounds)
+        setupCountryCodeView()
+    }
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -65,22 +79,21 @@ public class AGCountryCodeView: UIView {
         super.init(coder: aDecoder)
         setupCountryCodeView()
     }
+    
+    deinit {
+        unregisterKeyboardNotifications()
+    }
 
     //MARK: - Private methods
     
     private func setupCountryCodeView(){
         
         loadCountries()
-        
+        registerKeyboardNotifications()
         if let contentView = loadViewFromNib() {
             addSubview(contentView)
-            
-            //delegates
-            countryPicker.delegate = self
-            countryPicker.dataSource = self
-            searchFieldTxt.delegate = self
-            
-            tapContentView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeCountryPicker)))
+            pickerContentView.layer.cornerRadius = 5.0
+            addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeCountryPicker)))
         }
     }
     
@@ -95,8 +108,37 @@ public class AGCountryCodeView: UIView {
         return nil
     }
     
+    //MARK: - Keyboard methods
+    
+    private func registerKeyboardNotifications(){
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    private func unregisterKeyboardNotifications(){
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
     private func hideKeyboard() {
         searchFieldTxt.resignFirstResponder()
+    }
+    
+    @objc private func keyboardWillShow(notification:NSNotification) {
+        
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height / 3
+            pickerContentView.frame = pickerContentView.frame.offsetBy(dx: 0, dy: -keyboardHeight)
+        }
+    }
+    
+    @objc private func keyboardWillBeHidden(notification:NSNotification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height / 3
+            pickerContentView.frame = pickerContentView.frame.offsetBy(dx: 0, dy: keyboardHeight)
+        }
     }
     
     //MARK: - Load data
@@ -130,22 +172,24 @@ public class AGCountryCodeView: UIView {
     }
     
     //MARK: - Actions
-    
+
     @objc private func closeCountryPicker(){
         removeFromSuperview()
     }
+    
 }
 
 // MARK: - UIPickerViewDelegate
 extension AGCountryCodeView: UIPickerViewDelegate {
     
     public func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        hideKeyboard()
         selectedCountry = countries[row]
-        countryPickerViewDelegate?.countryPickerSelectedCountry(view: self,
-                                                                countryName: selectedCountry?.name,
-                                                                countryCode: selectedCountry?.code,
-                                                                countryDialCode: selectedCountry?.dial_code,
-                                                                flag: selectedCountry?.flag)
+        delegate?.countryPickerSelectedCountry(view: self,
+                                               countryName: selectedCountry?.name,
+                                               countryCode: selectedCountry?.code,
+                                               countryDialCode: selectedCountry?.dial_code,
+                                               flag: selectedCountry?.flag)
     }
 
 }
@@ -165,17 +209,16 @@ extension AGCountryCodeView: UIPickerViewDataSource {
         if let v = view {
             return v
         }else{
-            let v = AGCountryCodeCell(frame: CGRect(x: 0, y: 0, width: bounds.width, height: cellHeight))
+            let v = AGCountryCodeCell(frame: CGRect(x: 0, y: 0, width: pickerView.bounds.width, height: cellHeight))
             v.setupCell(country: countries[row])
             return v
         }
     }
     
-    public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        return cellHeight
-    }
+//    public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+//        return cellHeight
+//    }
 
-    
 }
 
 // MARK: - UITextFieldDelegate
@@ -196,11 +239,11 @@ extension AGCountryCodeView: UITextFieldDelegate {
             selectedCountry = countries[0]
         }
         if selectedCountry != nil {
-            countryPickerViewDelegate?.countryPickerSelectedCountry(view: self,
-                                                                    countryName: selectedCountry?.name,
-                                                                    countryCode: selectedCountry?.code,
-                                                                    countryDialCode: selectedCountry?.dial_code,
-                                                                    flag: selectedCountry?.flag)
+            delegate?.countryPickerSelectedCountry(view: self,
+                                                   countryName: selectedCountry?.name,
+                                                   countryCode: selectedCountry?.code,
+                                                   countryDialCode: selectedCountry?.dial_code,
+                                                   flag: selectedCountry?.flag)
             closeCountryPicker()
         }
         return true;
