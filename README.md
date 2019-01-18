@@ -23,12 +23,21 @@ A custom UIPickerView to provide to the user a list of countries.
 To create a view to show the country picker
 
 ```ruby
-    let countryView = AGCountryCodeView(frame: self.view.bounds)
+    let countryView = AGCountryCodeView()
 ```
 The CountryPickerViewDelegate notificates when user selects a country
 
 ```ruby
-protocol CountryPickerViewDelegate {
+public protocol AGCountryCodeViewDelegate {
+    
+    /// Every time the user selects a country, the delegate will call this function.
+    ///
+    /// - Parameters:
+    ///   - view: Sender (AGCountryCodeView)
+    ///   - countryName: The name of the country selected
+    ///   - countryCode: The code of the country selected
+    ///   - countryDialCode: The dial code of the country selected
+    ///   - flag: The flag of the country selected
     func countryPickerSelectedCountry(view: AGCountryCodeView,
                                       countryName:String?,
                                       countryCode:String?,
@@ -36,6 +45,11 @@ protocol CountryPickerViewDelegate {
                                       flag:UIImage?)
 }
 ```
+
+## Screenshots
+
+![GitHub Logo](screen01.png)
+![GitHub Logo](screen02.png)
 
 ## Author
 
