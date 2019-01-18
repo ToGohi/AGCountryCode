@@ -48,8 +48,8 @@ public protocol AGCountryCodeViewDelegate {
 
 ## Screenshots
 
-![GitHub Logo](screen01.png)
-![GitHub Logo](screen02.png)
+![GitHub Logo](https://github.com/ToGohi/AGCountryCode/raw/master/screen01.png)
+![GitHub Logo](https://github.com/ToGohi/AGCountryCode/raw/master/screen02.png)
 
 ## Author
 
